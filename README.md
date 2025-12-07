@@ -2,10 +2,6 @@
 
 A Vietnamese-language document comparison tool that detects and classifies changes between two versions of Word documents (.docx).
 
-![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react)
-![Vite](https://img.shields.io/badge/Vite-7.2-646CFF?logo=vite)
-![License](https://img.shields.io/badge/license-MIT-green)
-
 ## Features
 
 - 📄 **Upload & Compare** - Upload two .docx files to detect differences
