@@ -6,7 +6,6 @@ import {
   AlertTriangle, 
   AlertCircle, 
   CheckCircle,
-  Download,
   Loader2,
   ArrowLeft,
   Clock,
@@ -62,12 +61,6 @@ function App() {
     }
   }
 
-  const handleDownload = () => {
-    if (results?.annotated_doc_id) {
-      window.open(`${API_URL}/api/download/${results.annotated_doc_id}`, '_blank')
-    }
-  }
-
   const handleReset = () => {
     setPage('upload')
     setFile1(null)
@@ -90,7 +83,6 @@ function App() {
 
   return <ResultsPage 
     results={results}
-    onDownload={handleDownload}
     onReset={handleReset}
   />
 }
@@ -186,8 +178,8 @@ function UploadPage({ file1, file2, loading, error, onFile1Change, onFile2Change
 // RESULTS PAGE
 // ============================================================
 
-function ResultsPage({ results, onDownload, onReset }) {
-  const { summary, changes, processing_time_ms, annotated_doc_id } = results
+function ResultsPage({ results, onReset }) {
+  const { summary, changes, processing_time_ms } = results
 
   // Group changes by impact
   const criticalChanges = changes.filter(c => c.impact === 'critical')
@@ -277,19 +269,6 @@ function ResultsPage({ results, onDownload, onReset }) {
           </div>
         )}
       </div>
-
-      {/* Download Button */}
-      {annotated_doc_id && (
-        <div className="download-section">
-          <button className="download-button" onClick={onDownload}>
-            <Download size={20} />
-            Tải xuống tài liệu có đánh dấu thay đổi
-          </button>
-          <p className="download-hint">
-            File Word với các thay đổi được highlight và chú thích
-          </p>
-        </div>
-      )}
     </div>
   )
 }
