@@ -14,8 +14,7 @@ import {
 } from 'lucide-react'
 import './App.css'
 
-// API base URL - change for production
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_URL = import.meta.env.VITE_API_URL || 'https://doc-tracker-backend-production.up.railway.app'
 
 function App() {
   const [page, setPage] = useState('upload') // 'upload' or 'results'
@@ -143,7 +142,7 @@ function UploadPage({ file1, file2, loading, error, onFile1Change, onFile2Change
               />
               <div className="upload-content">
                 <Upload size={32} />
-                <span className="upload-title">Tài liệu đã sửa</span>
+                <span className="upload-title">Tài liệu mới</span>
                 {file2 ? (
                   <span className="file-name">{file2.name}</span>
                 ) : (
