@@ -295,6 +295,95 @@ function ResultsPage({ results, onDownload, onReset }) {
 }
 
 // ============================================================
+// DIFF HIGHLIGHTING UTILITIES
+// ============================================================
+
+// Compute word-level diff using Longest Common Subsequence
+function computeWordDiff(original, modified) {
+  if (!original && !modified) return { originalParts: [], modifiedParts: [] }
+  if (!original) return { originalParts: [], modifiedParts: [{ text: modified, type: 'added' }] }
+  if (!modified) return { originalParts: [{ text: original, type: 'removed' }], modifiedParts: [] }
+
+  const originalWords = original.split(/(\s+)/)
+  const modifiedWords = modified.split(/(\s+)/)
+
+  // Build LCS table
+  const m = originalWords.length
+  const n = modifiedWords.length
+  const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0))
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (originalWords[i - 1] === modifiedWords[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1] + 1
+      } else {
+        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1])
+      }
+    }
+  }
+
+  // Backtrack to find diff
+  const originalParts = []
+  const modifiedParts = []
+  let i = m, j = n
+
+  const originalStack = []
+  const modifiedStack = []
+
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && originalWords[i - 1] === modifiedWords[j - 1]) {
+      originalStack.push({ text: originalWords[i - 1], type: 'unchanged' })
+      modifiedStack.push({ text: modifiedWords[j - 1], type: 'unchanged' })
+      i--
+      j--
+    } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+      modifiedStack.push({ text: modifiedWords[j - 1], type: 'added' })
+      j--
+    } else {
+      originalStack.push({ text: originalWords[i - 1], type: 'removed' })
+      i--
+    }
+  }
+
+  // Reverse stacks and merge consecutive same-type parts
+  const mergeParts = (stack) => {
+    const reversed = stack.reverse()
+    const merged = []
+    for (const part of reversed) {
+      if (merged.length > 0 && merged[merged.length - 1].type === part.type) {
+        merged[merged.length - 1].text += part.text
+      } else {
+        merged.push({ ...part })
+      }
+    }
+    return merged
+  }
+
+  return {
+    originalParts: mergeParts(originalStack),
+    modifiedParts: mergeParts(modifiedStack)
+  }
+}
+
+// Render highlighted text
+function HighlightedText({ parts, mode }) {
+  return (
+    <span className="diff-text">
+      {parts.map((part, index) => {
+        if (part.type === 'unchanged') {
+          return <span key={index}>{part.text}</span>
+        } else if (part.type === 'removed' && mode === 'original') {
+          return <span key={index} className="diff-removed">{part.text}</span>
+        } else if (part.type === 'added' && mode === 'modified') {
+          return <span key={index} className="diff-added">{part.text}</span>
+        }
+        return <span key={index}>{part.text}</span>
+      })}
+    </span>
+  )
+}
+
+// ============================================================
 // CHANGE CARD COMPONENT
 // ============================================================
 
@@ -312,6 +401,9 @@ function ChangeCard({ change }) {
     added: 'Thêm mới',
     deleted: 'Xóa bỏ'
   }
+
+  // Compute diff when both original and modified exist
+  const diff = computeWordDiff(change.original, change.modified)
 
   return (
     <div className={`change-card ${change.impact}`}>
@@ -332,18 +424,18 @@ function ChangeCard({ change }) {
 
       {expanded && (
         <div className="change-details">
-          {/* Diff Display */}
+          {/* Diff Display with Highlighting */}
           <div className="diff-section">
             {change.original && (
               <div className="diff-block original">
                 <span className="diff-label">Gốc:</span>
-                <span className="diff-text">{change.original}</span>
+                <HighlightedText parts={diff.originalParts} mode="original" />
               </div>
             )}
             {change.modified && (
               <div className="diff-block modified">
                 <span className="diff-label">Mới:</span>
-                <span className="diff-text">{change.modified}</span>
+                <HighlightedText parts={diff.modifiedParts} mode="modified" />
               </div>
             )}
           </div>
