@@ -1,4 +1,4 @@
-# Doc Tracker Frontend
+# Document Tracker Frontend
 
 A Vietnamese-language document comparison tool that detects and classifies changes between two versions of Word documents (.docx).
 
