@@ -106,7 +106,7 @@ function UploadPage({ file1, file2, loading, error, onFile1Change, onFile2Change
       <header className="header">
         <FileCheck size={40} className="logo-icon" />
         <h1>So Sánh Tài Liệu</h1>
-        <p className="subtitle">Phát hiện và phân loại thay đổi giữa hai phiên bản tài liệu</p>
+        <p className="subtitle">Phát hiện và phân loại sự thay đổi giữa hai phiên bản của tài liệu Word (.docx)</p>
       </header>
 
       <div className="upload-section">
